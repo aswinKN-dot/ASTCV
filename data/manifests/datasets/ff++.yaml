@@ -1,0 +1,31 @@
+name: "FaceForensics++: Learning to Detect Manipulated Facial Images"
+short_name: "ff++"
+version: "v1.0"
+source_url: "https://github.com/ondyari/FaceForensics"
+paper_citation: "Roessler et al., ICCV 2019"
+access_type: "gated_form"
+access_url: "https://docs.google.com/forms/d/e/1FAIpQLSdRR5UBxewABWuw26pSpde4Oa0fq573C6-l2TqP_u6yY3gq6w/viewform"
+access_notes: "Requires filling out Google Form using an academic institutional email (.edu / college domain). Authors send download script download-FaceForensics.py and access token via email within 2-5 working days."
+license: "Non-commercial Research License (TUM)"
+license_restrictions: "Academic research only. Do not redistribute raw or compressed video archives."
+approx_size_gb: 1500
+total_videos: 5000
+n_real: 1000
+n_fake: 4000
+compression_levels:
+  - "raw (lossless)"
+  - "c23 (light compression, high quality)"
+  - "c40 (heavy compression, low quality)"
+manipulation_types:
+  - "Deepfakes"
+  - "Face2Face"
+  - "FaceSwap"
+  - "NeuralTextures"
+  - "FaceShifter"
+official_splits: true
+split_strategy: "Strict identity-level partition. Official benchmark provides 720 training videos, 140 validation videos, and 140 test videos. Never split by frame."
+known_biases: "Primarily YouTube broadcast/interview clips. Variable indoor lighting, mostly frontal or near-frontal poses, moderate demographic representation."
+astcv_role: "Primary benchmark for digital manipulation detection, baseline cross-entropy feature extraction, and comparative FAR/FRR testing against state-of-the-art."
+storage_path: "data/raw/public/ff++/"
+status: "pending_access"
+notes: "Recommend downloading c23 compression tier first (~85 GB) for initial prototyping before pulling full raw."

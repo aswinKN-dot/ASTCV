@@ -1,0 +1,23 @@
+name: "University at Albany DeepFake Video Dataset (UADFV)"
+short_name: "uadfv"
+version: "v1.0"
+source_url: "https://github.com/danmohaha/WIFS2018_In_I_Trust"
+paper_citation: "Li et al., IEEE WIFS 2018"
+access_type: "open"
+access_url: "https://github.com/danmohaha/WIFS2018_In_I_Trust"
+access_notes: "Openly accessible. Download link provided in the GitHub repository README (hosted on Google Drive/Box)."
+license: "Research use only"
+license_restrictions: "Non-commercial research citation required."
+approx_size_gb: 1.1
+total_videos: 98
+n_real: 49
+n_fake: 49
+manipulation_types:
+  - "Early-generation FaceSwap (FakeAPP)"
+official_splits: false
+split_strategy: "Pair-wise identity split: Each fake video corresponds to one real video target. Assign pairs (real_i, fake_i) strictly to either train (34 pairs), val (7 pairs), or test (8 pairs) (approx 70/15/15 ratio)."
+known_biases: "Small sample size, low variation in background, noticeable eye-blinking and boundary artifacts in synthesized videos."
+astcv_role: "Fast local unit testing, rapid smoke tests for feature extraction scripts, and initial sanity checks for evaluation metric harness."
+storage_path: "data/raw/public/uadfv/"
+status: "pending_access"
+notes: "Fastest dataset to download and verify on day one; ideal for building and testing the preprocessing pipeline before large sets arrive."

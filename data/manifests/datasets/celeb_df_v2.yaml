@@ -1,0 +1,23 @@
+name: "Celeb-DF: A Large-scale Challenging Dataset for DeepFake Forensics (v2)"
+short_name: "celeb_df_v2"
+version: "v2.0"
+source_url: "https://github.com/yuezunli/celeb-deepfakeforensics"
+paper_citation: "Li et al., CVPR 2020"
+access_type: "gated_email"
+access_url: "https://github.com/yuezunli/celeb-deepfakeforensics/blob/master/Celeb-DF_v2_Request_Form.pdf"
+access_notes: "Download Celeb-DF_v2_Request_Form.pdf, fill out researcher info and sign with faculty advisor (Leo Francis P), email signed form to celebalbany@gmail.com with subject '[Celeb-DF v2 Request]'. Link provided upon verification."
+license: "Custom Academic Research Agreement (SUNY Albany)"
+license_restrictions: "Strictly for non-commercial academic research. Redistribution or public re-hosting is prohibited."
+approx_size_gb: 5.5
+total_videos: 6229
+n_real: 590
+n_fake: 5639
+manipulation_types:
+  - "DeepFake (improved synthesis with reduced color mismatch and visual boundary artifacts)"
+official_splits: true
+split_strategy: "Use official List_of_testing_videos.txt containing 518 test videos. Split remaining 59 celebrity identities strictly across train and validation sets (no cross-split identity overlap)."
+known_biases: "Celebrity interviews from YouTube; studio lighting and makeup prevalent; higher resolution and visual quality than first-generation deepfakes."
+astcv_role: "High-quality deepfake stress-testing. Used to verify whether ASTCV physical reflectance anomalies expose photorealistic deepfakes that fool standard spatial CNNs."
+storage_path: "data/raw/public/celeb_df_v2/"
+status: "pending_access"
+notes: "High priority to request on Day 1 due to manual email review turnaround."

@@ -1,0 +1,22 @@
+name: "VoxCeleb2: Deep Speaker Recognition"
+short_name: "voxceleb2"
+version: "v1.0"
+source_url: "https://www.robots.ox.ac.uk/~vgg/data/voxceleb/vox2.html"
+paper_citation: "Chung et al., Interspeech 2018"
+access_type: "gated_form"
+access_url: "https://www.robots.ox.ac.uk/~vgg/data/voxceleb/vox2.html"
+access_notes: "Requires filling out the user agreement form on the Oxford VGG website with academic institution details. Username and password credentials are generated upon submission."
+license: "Creative Commons Attribution 4.0 International (CC BY 4.0)"
+license_restrictions: "Academic research and educational use only."
+approx_size_gb: 154
+total_videos: 1128246
+n_identities: 6112
+n_real: 1128246
+n_fake: 0
+official_splits: true
+split_strategy: "Official partition: Development set (5,994 identities) and Test set (118 identities). Identities in test set are completely disjoint from the development set."
+known_biases: "YouTube videos of interviews, talks, and press conferences. Varied head pose, facial dynamics, acoustic conditions, and camera qualities."
+astcv_role: "Bona-fide dynamic speech and natural facial movement benchmark. Used to benchmark false rejection rate (FRR) under natural speaking, head rotations, and varied lighting."
+storage_path: "data/raw/public/voxceleb2/"
+status: "pending_access"
+notes: "Test set (~9 GB) can be downloaded independently of the full dev set for rapid speech dynamics validation."

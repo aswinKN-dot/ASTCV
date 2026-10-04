@@ -1,0 +1,24 @@
+name: "DeepFake Detection Challenge (DFDC)"
+short_name: "dfdc"
+version: "v1.0"
+source_url: "https://ai.meta.com/datasets/dfdc/"
+paper_citation: "Dolhansky et al., NeurIPS 2020"
+access_type: "gated_kaggle"
+access_url: "https://www.kaggle.com/c/deepfake-detection-challenge/data"
+access_notes: "Requires a Kaggle account. Must navigate to competition page, accept the Competition Rules, and download via Kaggle CLI: kaggle competitions download -c deepfake-detection-challenge."
+license: "DFDC Competition Dataset License (Meta/PAI)"
+license_restrictions: "Academic research and evaluation only. Commercial usage prohibited."
+approx_size_gb: 470
+total_videos: 119154
+n_real: 19154
+n_fake: 100000
+manipulation_types:
+  - "Face-swap (Deepfakes, FSGAN, StyleGAN)"
+  - "Voice synthesis / audio-visual mismatch"
+official_splits: true
+split_strategy: "Partitioned into 50 parts (dfdc_train_part_0 to 49). Use metadata.json in each part to map video to 'original' video ID. Split by original actor identity to guarantee zero identity leakage between train/val/test."
+known_biases: "Diverse paid actors across ethnicity, age, and gender, recorded across varied home/office environments and illumination."
+astcv_role: "Evaluating system generalization across variable ambient lighting, background diversity, and complex edge-case compressions."
+storage_path: "data/raw/public/dfdc/"
+status: "pending_access"
+notes: "Dataset is huge (~470 GB). Store on primary external SSD (D:\\ASTCV). Can start with dfdc_train_part_0 (~10 GB) for pipeline testing."

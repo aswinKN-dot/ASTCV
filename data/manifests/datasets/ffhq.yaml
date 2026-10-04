@@ -1,0 +1,22 @@
+name: "Flickr-Faces-HQ (FFHQ)"
+short_name: "ffhq"
+version: "v1.0"
+source_url: "https://github.com/NVlabs/ffhq-dataset"
+paper_citation: "Karras et al., CVPR 2019"
+access_type: "open"
+access_url: "https://github.com/NVlabs/ffhq-dataset"
+access_notes: "Openly available through NVIDIA repository via Google Drive and Baidu links. Scripts provided in repository for automated downloading."
+license: "Creative Commons BY-NC-SA 4.0"
+license_restrictions: "Non-commercial use. Any derivative work must be shared under the same license."
+approx_size_gb: 89.1
+total_images: 70000
+n_real: 70000
+n_fake: 0
+format: "PNG (1024x1024), also available in downscaled 512x512 and TFRecords"
+official_splits: false
+split_strategy: "Standard community split: First 60,000 images (00000-59999) for training/reference baseline; last 10,000 images (60000-69999) for test evaluation."
+known_biases: "Crawled from Flickr; higher quality photography, diverse age, ethnicity, and image background, variety of accessories (glasses, hats)."
+astcv_role: "Pristine real human face reference dataset. Used to calibrate baseline diffuse/specular reflectance maps and spatial landmark bounding anchors on real high-resolution static faces."
+storage_path: "data/raw/public/ffhq/"
+status: "pending_access"
+notes: "Static images (not video). High resolution makes it ideal for testing spatial facial zone segmentation (forehead, cheeks, nose) without motion blur."
