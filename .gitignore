@@ -20,9 +20,10 @@ ENV/
 /data/processed/
 /experiments/mlruns/
 
-# ── MLflow ───────────────────────────────────────────────────────────────────
+# ── MLflow (SQLite backend — DVC-tracked, not in git) ────────────────────────
+/experiments/mlflow.db
+/experiments/mlartifacts/
 mlruns/
-mlartifacts/
 
 # ── OS / Editor ──────────────────────────────────────────────────────────────
 .DS_Store

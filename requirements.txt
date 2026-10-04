@@ -1,0 +1,19 @@
+# ASTCV — Python dependencies
+# Pin major versions. Run: pip install -r requirements.txt
+
+# Data versioning
+dvc==3.67.1
+dvc-gdrive==3.0.1
+
+# Experiment tracking
+mlflow==3.16.1
+
+# Data validation
+pydantic==2.13.5
+
+# Data processing (added in Phase 2 as needed)
+# opencv-python>=4.9
+# numpy>=1.26
+# pandas>=2.2
+# scikit-learn>=1.4   # for ROC/DET curves
+# matplotlib>=3.8     # for visualizations
