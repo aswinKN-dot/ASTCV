@@ -145,21 +145,31 @@ def _check_consent_record_file(
     session_path: Path,
     manifest: SessionManifest,
     result: ValidationResult,
+    consent_dir: Optional[Path] = None,
 ) -> None:
     """
-    If consent_flag is True, verify the consent record UUID is a real UUID
-    (file existence check is skipped — consent forms live in a separate
-    private path; this just checks the UUID is well-formed, already done
-    by Pydantic, but we add a warning if the ID looks suspicious).
+    If consent_flag is True, verify that:
+    1. consent_record_id is valid and non-nil.
+    2. The physical signed PDF file exists in docs/consent_records/<consent_record_id>.pdf.
     """
     if manifest.consent_flag and manifest.consent_record_id is not None:
-        # Check it's not a nil UUID — that's a sentinel value mistake
         nil_uuid = UUID("00000000-0000-0000-0000-000000000000")
         if manifest.consent_record_id == nil_uuid:
             result.passed = False
             result.errors.append(
                 "consent_record_id is a nil UUID (all zeros). "
                 "This is not a valid consent record ID."
+            )
+            return
+
+        # Check physical signed PDF
+        target_dir = consent_dir or (Path(__file__).resolve().parent.parent / "docs" / "consent_records")
+        expected_pdf = target_dir / f"{manifest.consent_record_id}.pdf"
+        if not expected_pdf.exists():
+            result.passed = False
+            result.errors.append(
+                f"Consent record PDF not found on disk: {expected_pdf}. "
+                f"Every consent_record_id must be backed by a physical signed form."
             )
 
 
