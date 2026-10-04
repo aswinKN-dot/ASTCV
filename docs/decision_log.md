@@ -22,6 +22,22 @@ All technical decisions must be recorded here. Do NOT log decisions in chat thre
 
 ## Log
 
+### [2026-10-04] — Cross-device jitter benchmark schema & MLflow integration
+**Decided by:** M3 (Aswin)
+**Context:** Phase 1 requires cross-device jitter testing across minimum 2 hardware devices (e.g. phone vs laptop). A formal storage and analysis contract was needed so M1/M2 test outputs are immediately verifiable.
+**Decision:** Standardized jitter test schema (`data/schemas_jitter.py`) storing JSON logs in `data/raw/jitter_tests/<test_id>/jitter_log.json`. Created analysis runner (`eval/jitter_analysis.py`) tracking mean latency, std dev, P95/P99 latency, and frame drop rates logged to MLflow experiment `phase1_jitter_benchmark`.
+**Rationale:** Enforces quantitative validation of synchronization bounds before physical reflectance modeling begins in Phase 2.
+**Alternatives considered:** Ad-hoc CSV logs (rejected — lack schema validation and metadata tracking).
+**Impact:** `data/`, `eval/`, Phase 1 synchronization deliverables.
+
+### [2026-10-04] — Zero-leakage identity-level dataset partitioning policy
+**Decided by:** M3 (Aswin)
+**Context:** Face and deepfake datasets often contain multiple videos or frames of the same individual. Random frame-level or video-level splits cause severe data leakage and artificially inflate FAR/FRR metrics.
+**Decision:** All datasets must be partitioned strictly by actor/subject identity (`scripts/preprocess/split_dataset.py`) with mathematical disjointness verification (`--verify`).
+**Rationale:** Preserves scientific credibility for academic publication and patent claims.
+**Alternatives considered:** Video-level split (rejected — same actor in train and test corrupts liveness generalization).
+**Impact:** `scripts/preprocess/`, `data/manifests/`, Phase 2 & 3 evaluations.
+
 ### [2026-10-04] — Repo structure and tooling
 **Decided by:** M3 (Aswin)
 **Context:** Starting Phase 1 — needed to establish data backbone before sync and calibration work produces storable output.

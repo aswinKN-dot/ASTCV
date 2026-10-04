@@ -62,8 +62,41 @@ Each pattern entry:
 | Raw frames | WebRTC capture | JPEG, ≥ 720p |
 | Device info | User-agent / OS API | string |
 
-## 5. Open Questions (to resolve by Day 10)
+## 5. Cross-Device Jitter Benchmark Log Specification
+
+For Phase 1 cross-device synchronization testing (minimum 2 devices: e.g., mobile phone and laptop), M1/M2 must emit a benchmark log stored at:
+`data/raw/jitter_tests/<test_id>/jitter_log.json`
+
+Validated via: `data/schemas_jitter.py` (`JitterTestLog`)  
+Analyzed via: `python eval/jitter_analysis.py data/raw/jitter_tests/ --log-mlflow`
+
+```json
+{
+  "test_id": "UUID v4",
+  "device_model": "string — e.g. 'Google Pixel 7'",
+  "device_type": "mobile | laptop | desktop | tablet",
+  "os_browser": "string — e.g. 'Android 14 / Chrome 126'",
+  "display_refresh_rate_hz": 60.0,
+  "camera_fps": 30.0,
+  "test_timestamp_utc": "ISO 8601 UTC string",
+  "network_condition": "local | wifi_5ghz | wifi_2.4ghz | cellular_5g | cellular_4g | simulated_jitter",
+  "nominal_challenge_period_ms": 50.0,
+  "samples": [
+    {
+      "frame_index": 0,
+      "emitter_timestamp_ms": 0.0,
+      "capture_timestamp_ms": 48.2,
+      "delta_ms": 48.2,
+      "jitter_ms": 1.8,
+      "is_dropped": false
+    }
+  ],
+  "notes": "optional string"
+}
+```
+
+## 6. Open Questions (to resolve by Day 10)
 
 - [ ] Clock sync strategy between screen emitter and capture — NTP offset or shared epoch?
-- [ ] What is the maximum tolerable jitter before a frame is flagged as unsynced?
-- [ ] Does M2 emit per-frame timestamps or only keyframe timestamps?
+- [ ] What is the maximum tolerable jitter before a frame is flagged as unsynced? (Target: < 15ms)
+- [ ] Does M2 emit per-frame timestamps or only keyframe timestamps? (Per-frame required for Physicality Score)
