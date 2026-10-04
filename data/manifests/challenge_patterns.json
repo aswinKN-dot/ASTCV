@@ -1,0 +1,4 @@
+{
+  "_comment": "Challenge pattern registry. Owned by M1 (Amal Krishna J). M3 uses this file to validate pattern IDs in session manifests. Do NOT add fake patterns — only add real patterns once M1 defines them.",
+  "patterns": []
+}
