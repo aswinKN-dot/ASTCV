@@ -1,6 +1,8 @@
 [core]
     remote = ssd
 ['remote "ssd"']
-    url = D:\ASTCV
+    # Each teammate sets their local drive path via: dvc remote modify --local ssd url "<path>"
+    url = local_storage_placeholder
 ['remote "gdrive"']
-    url = gdrive://
+    # Configure your team folder id: dvc remote modify gdrive url "gdrive://<folder_id>"
+    url = gdrive://pending_folder_id
