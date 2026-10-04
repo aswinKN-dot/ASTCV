@@ -1,0 +1,6 @@
+[core]
+    remote = ssd
+['remote "ssd"']
+    url = D:\ASTCV
+['remote "gdrive"']
+    url = gdrive://
