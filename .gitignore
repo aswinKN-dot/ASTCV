@@ -33,12 +33,16 @@ Thumbs.db
 *.swp
 *.swo
 
-# ── Secrets / Keys ───────────────────────────────────────────────────────────
+# ── Secrets / Keys / Personally Identifiable Information ──────────────────────
 .env
 *.pem
 *.key
 credentials.json
 token.json
+/docs/consent_records/*.pdf
+/docs/consent_records/*.jpg
+/docs/consent_records/*.png
+docs/identity_map.enc
 
 # ── Jupyter ──────────────────────────────────────────────────────────────────
 .ipynb_checkpoints/

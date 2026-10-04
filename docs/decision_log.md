@@ -22,13 +22,27 @@ All technical decisions must be recorded here. Do NOT log decisions in chat thre
 
 ## Log
 
-### [2026-10-04] — Cross-device jitter benchmark schema & MLflow integration
+### [2026-10-04] — Subject identity key and attack session inheritance
 **Decided by:** M3 (Aswin)
-**Context:** Phase 1 requires cross-device jitter testing across minimum 2 hardware devices (e.g. phone vs laptop). A formal storage and analysis contract was needed so M1/M2 test outputs are immediately verifiable.
-**Decision:** Standardized jitter test schema (`data/schemas_jitter.py`) storing JSON logs in `data/raw/jitter_tests/<test_id>/jitter_log.json`. Created analysis runner (`eval/jitter_analysis.py`) tracking mean latency, std dev, P95/P99 latency, and frame drop rates logged to MLflow experiment `phase1_jitter_benchmark`.
-**Rationale:** Enforces quantitative validation of synchronization bounds before physical reflectance modeling begins in Phase 2.
-**Alternatives considered:** Ad-hoc CSV logs (rejected — lack schema validation and metadata tracking).
-**Impact:** `data/`, `eval/`, Phase 1 synchronization deliverables.
+**Context:** Dataset splitting requires an invariant identity key, but SessionManifest lacked an identity identifier. Furthermore, attack sessions (replays, prints, deepfakes) must not leak into training if generated from a test-set volunteer.
+**Decision:** For bona-fide sessions, `subject_id` is set equal to `consent_record_id`, establishing an anonymized, 1-to-1 link without storing personal names. For attack sessions, `source_session_id` is mandatory and references the source session, inheriting the subject identity so partitions remain disjoint.
+**Rationale:** Prevents identity leakage across live and spoof splits, preserving auditability for academic publications and patent claims.
+**Alternatives considered:** Free-text subject name (rejected — violates privacy SOP); separate identity hashing table (rejected — unnecessary complexity when UUID v4 consent IDs already exist).
+**Impact:** `data/schemas.py`, `scripts/preprocess/split_dataset.py`, Phase 2 & 3 evaluations.
+
+### [2026-10-04] — Metric namespace isolation: Synchronization vs Verification Latency
+**Decided by:** M3 (Aswin)
+**Context:** Hardware-timestamp jitter analysis was initially logging mean transmission delta as `eval/latency_ms`. However, the core ASTCV prototype target requires end-to-end decision latency to be < 150 ms (`eval/latency_ms`).
+**Decision:** All frame sync and WebRTC telemetry metrics are strictly namespaced under `sync/*` (e.g. `sync/delta_mean_ms`, `sync/spread_p95_p5_ms`, `sync/drop_rate_pct`). The `eval/latency_ms` key is strictly reserved for the end-to-end capture-to-decision pipeline.
+**Rationale:** Eliminates MLflow metric key collisions and ambiguity between transmission delay and algorithmic execution latency.
+**Impact:** `eval/tracker.py`, `eval/jitter_analysis.py`, Phase 1 & Phase 3 evaluation harnesses.
+
+### [2026-10-04] — Machine-agnostic DVC configuration and DPDP per-session tracking
+**Decided by:** M3 (Aswin)
+**Context:** Hardcoding `D:\ASTCV` in Git-tracked `.dvc/config` broke execution on teammates' machines. Additionally, tracking custom volunteer data as a monolithic directory made compliance with India's DPDP Act 2023 right to erasure impossible.
+**Decision:** Machine paths are moved to `.dvc/config.local` (ignored by Git). Each custom volunteer session is tracked individually (`data/raw/custom/<session_id>.dvc`). Upon consent withdrawal, the single session pointer is deleted and `dvc gc --force` purges cached objects.
+**Rationale:** Ensures repository portability across Windows/Mac/Linux and provides an airtight, audit-ready data erasure workflow.
+**Impact:** `.dvc/config`, `docs/data_storage_sop.md`, project compliance.
 
 ### [2026-10-04] — Zero-leakage identity-level dataset partitioning policy
 **Decided by:** M3 (Aswin)

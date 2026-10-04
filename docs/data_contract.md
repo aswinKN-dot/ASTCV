@@ -6,31 +6,63 @@
 
 ---
 
-## 1. Session Schema
+## 1. Session Schema (v1.1.0)
 
 Every captured session must produce one JSON manifest file stored at:
 `data/raw/custom/<session_id>/manifest.json`
 
+Validated via: `python -m data.validator data/raw/custom/<session_id>/ --check-frames`
+
 ```json
 {
+  "schema_version": "1.1.0",
+  "pipeline_git_commit": "string — commit hash (e.g. '3f13d26')",
   "session_id": "string — UUID v4",
+  "subject_id": "string — UUID v4 (equals consent_record_id for LIVE)",
+  "source_session_id": "string or null — UUID of source session (MANDATORY for attacks)",
   "device_model": "string — e.g. 'Samsung Galaxy S23', 'Dell XPS 15'",
   "os_browser": "string — e.g. 'Android 14 / Chrome 126'",
-  "capture_timestamp_utc": "ISO 8601 — session start time in UTC",
+  "capture_timestamp_utc": "ISO 8601 string WITH timezone (e.g. '2026-10-05T08:00:00Z')",
+  "clock_source": "performance.now | requestVideoFrameCallback | system_monotonic | system_utc",
+  "camera_settings": {
+    "fps": 30.0,
+    "resolution_w": 1280,
+    "resolution_h": 720,
+    "exposure_locked": true,
+    "white_balance_locked": true
+  },
+  "lighting_condition": "bright_indoor | dim_indoor | natural_outdoor | harsh_side_lit | variable",
+  "eyewear": "none | prescription_glasses | sunglasses | tinted_glasses",
+  "skin_tone": "optional string (e.g. 'Fitzpatrick_III')",
+  "challenge_params": {
+    "color_space": "sRGB",
+    "intensity_min": 0.1,
+    "intensity_max": 0.9,
+    "flash_seed": 42
+  },
   "challenge_pattern_ids": ["list of strings — ordered sequence of pattern IDs shown"],
-  "frame_timestamp_log": [
+  "pattern_events": [
     {
-      "frame_index": "int",
-      "hardware_timestamp_ms": "int — milliseconds since session start",
-      "pattern_id": "string — which challenge pattern was active at this frame"
+      "pattern_id": "string",
+      "emit_timestamp_ms": 0.0,
+      "duration_ms": 100.0
     }
   ],
-  "label": "string — one of: 'live', 'replay', 'print', 'virtual_camera', 'deepfake'",
-  "consent_flag": "bool — true only if signed consent record exists for this subject",
-  "consent_record_id": "string — UUID linking to consent record in docs/consent_records/",
-  "calibration_applied": "bool — whether display-camera calibration was run pre-session",
-  "calibration_version": "string or null — e.g. 'v1.2', null if not applied",
-  "notes": "string — optional, e.g. 'subject wore glasses', 'low ambient light'"
+  "frame_timestamp_log": [
+    {
+      "frame_index": 0,
+      "hardware_timestamp_ms": 16.67,
+      "pattern_id": "string",
+      "is_dropped": false
+    }
+  ],
+  "label": "live | replay | print | virtual_camera | deepfake",
+  "consent_flag": true,
+  "consent_record_id": "string — UUID v4 linking to docs/consent_records/<id>.pdf",
+  "consent_form_version": "v1.1",
+  "calibration_applied": true,
+  "calibration_version": "v1.0",
+  "notes": "optional annotations"
 }
 ```
 
