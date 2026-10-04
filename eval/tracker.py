@@ -139,7 +139,7 @@ def setup_experiment(name: str) -> str:
 # ---------------------------------------------------------------------------
 
 def _get_git_info() -> Dict[str, str]:
-    """Collect git commit hash and branch name. Returns empty dict on failure."""
+    """Collect git commit hash, branch name, and dirty state (including staged and untracked)."""
     info: Dict[str, str] = {}
     try:
         info["git_commit"] = subprocess.check_output(
@@ -148,23 +148,21 @@ def _get_git_info() -> Dict[str, str]:
         info["git_branch"] = subprocess.check_output(
             ["git", "rev-parse", "--abbrev-ref", "HEAD"], stderr=subprocess.DEVNULL
         ).decode().strip()
-        # Check if working tree is dirty
-        dirty = subprocess.call(
-            ["git", "diff", "--quiet"],
-            stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL
-        )
-        info["git_dirty"] = str(bool(dirty))
+        # Check if working tree has any staged, unstaged, or untracked changes
+        status_output = subprocess.check_output(
+            ["git", "status", "--porcelain"], stderr=subprocess.DEVNULL
+        ).decode().strip()
+        info["git_dirty"] = str(bool(status_output))
     except (subprocess.CalledProcessError, FileNotFoundError):
         info["git_commit"] = "unavailable"
     return info
 
 
 def _get_system_info() -> Dict[str, str]:
-    """Collect Python version and platform details."""
+    """Collect Python version and OS platform details (no hostnames for privacy)."""
     return {
         "python_version": sys.version.split()[0],
         "platform": platform.platform(),
-        "hostname": platform.node(),
     }
 
 
@@ -172,21 +170,14 @@ def _get_dvc_versions(data_paths: Optional[list[str]] = None) -> Dict[str, str]:
     """
     Attempt to read DVC-tracked file hashes for given paths.
     These act as dataset version identifiers.
-
-    Args:
-        data_paths: List of DVC-tracked paths to log versions for.
-
-    Returns:
-        Dict mapping path → DVC md5 hash (or 'unavailable').
     """
-    if not data_paths:
-        return {}
+    paths_to_check = data_paths or ["data/raw", "data/processed"]
     versions: Dict[str, str] = {}
-    for path in data_paths:
+    for path in paths_to_check:
         dvc_file = Path(path + ".dvc")
         if dvc_file.exists():
             try:
-                import yaml  # PyYAML ships with DVC
+                import yaml
                 with dvc_file.open() as f:
                     meta = yaml.safe_load(f)
                 md5 = meta.get("outs", [{}])[0].get("md5", "no_md5")
@@ -194,7 +185,7 @@ def _get_dvc_versions(data_paths: Optional[list[str]] = None) -> Dict[str, str]:
             except Exception:
                 versions[f"dvc_{Path(path).name}"] = "parse_error"
         else:
-            versions[f"dvc_{Path(path).name}"] = "no_dvc_file"
+            versions[f"dvc_{Path(path).name}"] = "unversioned"
     return versions
 
 
@@ -206,18 +197,9 @@ class ASTCVRun:
     """
     Context manager for a single ASTCV MLflow run.
 
-    Automatically logs environment context (git, system, DVC) on enter.
-    Provides helper methods for logging standard ASTCV metrics.
-
-    Example:
-        with ASTCVRun(
-            experiment="phase1_sync_baseline",
-            run_name="pixel7_ff++_20261005",
-            dataset="ff++",
-            device="pixel7",
-        ) as run:
-            run.log_params({"threshold": 0.5})
-            run.log_eval_metrics(far=0.03, frr=0.015, latency_ms=122.0)
+    Automatically ensures experiment existence, configures local SQLite storage,
+    logs environment context (git, system, DVC) as immutable tags on enter,
+    and sets proper failure status on exceptions.
     """
 
     def __init__(
@@ -229,15 +211,6 @@ class ASTCVRun:
         tags: Optional[Dict[str, str]] = None,
         dvc_data_paths: Optional[list[str]] = None,
     ):
-        """
-        Args:
-            experiment:      Must follow phase{N}_{description}.
-            run_name:        Must follow {device}_{dataset}_{YYYYMMDD}.
-            dataset:         Dataset identifier string logged as a tag.
-            device:          Device identifier string logged as a tag.
-            tags:            Additional key-value tags to attach to the run.
-            dvc_data_paths:  DVC-tracked data paths whose hashes will be logged.
-        """
         validate_experiment_name(experiment)
         validate_run_name(run_name)
 
@@ -246,10 +219,12 @@ class ASTCVRun:
         self.dataset = dataset
         self.device = device
         self.tags = tags or {}
-        self.dvc_data_paths = dvc_data_paths or []
+        self.dvc_data_paths = dvc_data_paths
         self._active_run: Optional[mlflow.ActiveRun] = None
 
     def __enter__(self) -> "ASTCVRun":
+        # Ensure experiment exists with correct artifact location
+        setup_experiment(self.experiment)
         mlflow.set_tracking_uri(TRACKING_URI)
         mlflow.set_experiment(self.experiment)
 
@@ -261,14 +236,14 @@ class ASTCVRun:
 
         self._active_run = mlflow.start_run(run_name=self.run_name, tags=combined_tags)
 
-        # Auto-log environment context
+        # Auto-log environment context as tags (not params, to prevent collision/mutability issues)
         git_info = _get_git_info()
         sys_info = _get_system_info()
         dvc_info = _get_dvc_versions(self.dvc_data_paths)
 
-        env_params = {**git_info, **sys_info, **dvc_info}
-        if env_params:
-            mlflow.log_params(env_params)
+        env_tags = {**git_info, **sys_info, **dvc_info}
+        if env_tags:
+            mlflow.set_tags(env_tags)
 
         print(
             f"[tracker] Run started: experiment='{self.experiment}' "
@@ -280,10 +255,12 @@ class ASTCVRun:
         if exc_type is not None:
             mlflow.set_tag("run_status", "FAILED")
             mlflow.set_tag("error", str(exc_val))
+            mlflow.end_run(status="FAILED")
+            status = "FAILED"
         else:
             mlflow.set_tag("run_status", "COMPLETED")
-        mlflow.end_run()
-        status = "FAILED" if exc_type else "COMPLETED"
+            mlflow.end_run(status="FINISHED")
+            status = "COMPLETED"
         print(f"[tracker] Run ended: {self.run_name} -> {status}")
         return False  # do not suppress exceptions
 
